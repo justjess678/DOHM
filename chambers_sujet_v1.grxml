@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar version="1.0" root="Sujet" xml:lang="fr">
+
+<meta name="description" content="Grammaire objet"/>
+<meta name="author" content="Jessica Chambers"/>
+
+	 <rule id = "Objet" scope = "public">
+		<one-of>
+			<item>argent	<tag> out.objet = "argent" ; 	</tag></item>
+			<item>cours		<tag> out.objet = "cours" ; 	</tag></item>
+			<item>projet	<tag> out.objet = "projet" ;	</tag></item>
+			<item>personnel	<tag> out.objet = "personnel" ; </tag></item>
+		</one-of>
+	</rule>
+
+</grammar>

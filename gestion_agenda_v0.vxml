@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+<meta name="description" content="Gestion agenda version 0"/>
+<meta name="author" content="Isabelle Ferrane"/>
+<meta name="copyright" content="IUP SI M2 Pro Dialogue"/>
+
+<!-- Version de base : gestion de dialogue et comprehension -->
+<!-- Demande et verification du numero d'abonne -->
+
+<!-- Activation de la grammaire permettant la detection des -->
+<!-- demandes d'aide formulees par l'utilisateur            -->
+
+<link event="help">
+<grammar src="grammaire_aide.grxml" type="application/srgs+xml" />
+</link>
+
+<link event="exit">
+  <grammar root="main">
+    <rule id="main" scope="public">
+      <one-of>
+        <item>  exit  </item>
+        <item>  quit  </item>
+      </one-of>
+    </rule>
+  </grammar>
+</link>
+
+<catch event="exit">
+  <prompt> Au revoir! </prompt>
+  <exit/>
+</catch>
+
+<catch event="help">
+  <prompt> AIDE: suivre les directions. Cet outil est fait pour planigier des rendez-vous dans un agenda. </prompt>
+</catch>
+
+<!-- dialogue de demande d'information -->
+
+<form id="agenda">
+
+<!-- initialisation des variables internes au formulaire -->
+<var name="reponse" />
+<var name="message_confirm" />
+
+<!-- declaration des variables Javascript -->
+<script>
+       <!-- exemple de gestion de la date au format Ecmascript --> 
+       <!-- Date courante -->
+		var now = new Date();
+    <!-- 2010, 11, 9, 15, 30, 0, 0 -->
+       <!-- Valeur de la date fournie par l'utilisateur -->
+		var date_choisie = new Date();
+       <!-- Activation/desactivation du mode TRACE -->
+		var mode_trace ="True";
+</script>
+
+<block>
+   	Bienvenue sur le service de gestion de votre agenda. 
+        Aujourd'hui nous sommes le <value expr="now.toString()" />
+   	<!-- affiche le nombre de millisecondes correspondant -->
+   	<value expr="now.valueOf()" />
+</block>
+
+<!-- Champ/Slot NUMERO D'ABONNE -->
+<field name="num_abonne">
+
+	 <prompt> Quel est votre numero d'abonne ? </prompt>
+
+         <!-- Appel a une grammaire externe -->
+	 <grammar src="grammaire_num_ab_v2.grxml" type="application/srgs+xml"/>
+
+         <!-- Gestion des erreurs -->
+         <help> Donner un nombre compris entre 1 et 999 999 </help>
+         <noinput> Je n'ai pas entendu. Pouvez-vous me preciser votre numero d'abonne ? </noinput>
+	 <nomatch> Je n'ai pas compris. Pouvez-vous me donner votre numero d'abonne S.V.P ? </nomatch>
+
+         <!-- Comportement du systeme une fois ce champ rempli -->
+    <filled>
+           <if cond="num_abonne.nb &lt; 1 &amp;&amp; num_abonne.nb &lt; 2500">
+              <clear namelist="rdv_heure" />
+              Numero d'abonne invalide! Donner un numero entre 1 et 2500
+            </if>
+            Votre numero d'abonne est le <value expr="num_abonne.text" />
+             <if cond="mode_trace=='True'">
+               TRACE VALEUR  <value expr="num_abonne.nb" />
+             </if>
+    </filled>
+  </field>
+
+<!-- Champ/Slot de confirmation  -->
+<subdialog name="conf" src="sous_dialogues.vxml#conf">
+  <param name="val" expr="num_abonne"/>
+  <filled>
+    <if cond="conf.confirm=='True'">
+       <assign name="message_confirm" expr="'TRACE numero confirme'" />
+    <else/>
+       <assign name="message_confirm" expr="'TRACE numero non confirme'" />
+       <clear namelist="conf num_abonne" />
+    </if>
+    <!-- Comportement si le mode TRACE est active --> 
+    <if cond="mode_trace=='True'">
+     TRACE Reponse <value expr="message_confirm" />
+    </if>
+  </filled>
+</subdialog>
+
+
+<block>
+       <!-- Simulation autorisation d'acces -->
+	Veuillez patienter ... Nous nous connectons a la base abonne....
+  Bonjour Monsieur Dupont. Vous pouvez maintenant acceder a votre agenda !
+</block>
+
+<!-- Champ/Slot Date du RDV -->
+<field name="rdv_date">
+
+  <prompt> Quel jour est votre rendez-vous ? </prompt>
+         <!-- Appel a une grammaire externe -->
+  <grammar src="grammaire_dates_v3.grxml" type="application/srgs+xml"/>
+
+  <!-- Gestion des erreurs -->
+  <help> Donner une date </help>
+  <noinput> Je n'ai pas entendu. Pouvez-vous me preciser la date de votre rendez-vous ? </noinput>
+  <nomatch> Je n'ai pas compris. Pouvez-vous me donner la date de votre rendez-vous S.V.P ? </nomatch>
+
+  <!-- Comportement du systeme une fois ce champ rempli -->
+  <filled>
+    <if cond="rdv_date.nb_annee==0">
+      <script>
+        var year = now.getFullYear();
+        if(rdv_date.num_mois + 1 &lt; now.getMonth()){
+          year += 1;
+        } else if (rdv_date.num_mois + 1 == now.getMonth() &amp;&amp; rdv_date.nb_jour &lt; now.getDate()){
+          year += 1;
+        }
+      </script>
+    <else/>
+      <value expr="rdv_date.nb_annee" />
+    </if>
+    <script>
+      var date_readable = "" + rdv_date.nb_jour+" ";
+      switch((rdv_date.num_mois+1)%13){
+        case 1: date_readable += "janvier ";
+          break;
+        case 2: date_readable += "fevrier ";
+          break;
+        case 3: date_readable += "mars ";
+          break;
+        case 4: date_readable += "avril ";
+          break;
+        case 5: date_readable += "mai ";
+          break;
+        case 6: date_readable += "juin ";
+          break;
+        case 7: date_readable += "juillet ";
+          break;
+        case 8: date_readable += "aout "; 
+          break;
+        case 9: date_readable += "septembre ";
+          break;
+        case 10: date_readable += "octobre ";
+          break;
+        case 11: date_readable += "novembre ";
+          break;
+        case 12: date_readable += "decembre ";
+          break;
+        default: date_readable += "MOIS ";
+          break;
+      }
+      date_readable += year;
+    </script>
+    Votre rendez-vous est le <value expr="date_readable" />.
+    <if cond="mode_trace=='True'">
+     TRACE VALEUR  <value expr="rdv_date.text" />
+    </if>
+  </filled>
+
+</field>
+
+<!-- Champ/Slot de confirmation de la date!  -->
+  <field name="confirm_date">
+         <prompt> Pouvez-vous me le confirmer ? </prompt>
+         <!-- Appel a une grammaire externe -->
+         <grammar src="grammaire_act_lang_confirmation_v2.grxml" type="application/srgs+xml" />
+         <!-- Gestion des erreurs -->
+         <help> Repondez par oui ou non </help>
+         <noinput> Je n'ai pas entendu. Pouvez-vous repeter ? </noinput>
+         <nomatch> Je ne vous ai pas compris. Pouvez-vous repondre par oui ou par non </nomatch>
+         <!-- Comportement du systeme apres confirmation/infirmation --> 
+         <!-- OK ==> On sort ou on passe a une autre sous-tache -->
+         <!-- NOK ==> On efface tout et on recommence --> 
+         <filled>
+                 <if cond="confirm_date=='True'">
+                     <assign name="message_confirm" expr="'TRACE Date confirme'" />
+                 <else/>
+                     <assign name="message_confirm" expr="'TRACE Date non confirme'" />
+                     <clear namelist="rdv_date confirm_date" />
+                 </if>
+                 <!-- Comportement si le mode TRACE est active --> 
+
+                 <if cond="mode_trace=='True'">
+                   TRACE Reponse <value expr="message_confirm" />
+                 </if>
+         </filled>
+</field>
+
+<!-- Champ/Slot Heure du RDV -->
+<field name="rdv_heure">
+
+  <prompt> A quelle heure est votre rendez-vous ? </prompt>
+         <!-- Appel a une grammaire externe -->
+  <grammar src="chambers_horaire_v1.grxml" type="application/srgs+xml"/>
+
+  <!-- Gestion des erreurs -->
+  <help> Donner une heure entre 7:30 et 21:30 </help>
+  <noinput> Je n'ai pas entendu. Pouvez-vous me preciser l'heure de votre rendez-vous ? </noinput>
+  <nomatch> Je n'ai pas compris. Pouvez-vous me donner l'heure de votre rendez-vous S.V.P ? </nomatch>
+
+  <!-- Comportement du systeme une fois ce champ rempli -->
+  <filled>
+
+  <if cond="rdv_heure.heure &lt; 7 &amp;&amp; rdv_heure.minute &lt; 30">
+    <clear namelist="rdv_heure" />
+    Heure invalide! Donner une heure entre 7:30 et 21:30
+  </if>
+  <if cond="rdv_heure.heure &gt; 21 &amp;&amp; rdv_heure.minute &gt; 30">
+    <clear namelist="rdv_heure" />
+    Heure invalide! Donner une heure entre 7:30 et 21:30
+  </if>
+  <script>
+    var heure_readable = "" + rdv_heure.heure + " heures " + rdv_heure.minute;
+  </script>
+  Le rendez vous est a <value expr="heure_readable" />.
+       <if cond="mode_trace=='True'">
+         TRACE VALEUR  <value expr="rdv_heure.text" />
+       </if>
+  </filled>
+
+</field>
+
+<!-- Champ/Slot de confirmation de l'heure  -->
+  <field name="confirm_time">
+         <prompt> Pouvez-vous me le confirmer ? </prompt>
+         
+         <!-- Appel a une grammaire externe -->
+         <grammar src="grammaire_act_lang_confirmation_v2.grxml" type="application/srgs+xml" />
+         
+         <!-- Gestion des erreurs -->
+         <help> Repondez par oui ou non </help>
+         <noinput> Je n'ai pas entendu. Pouvez-vous repeter ? </noinput>
+         <nomatch> Je ne vous ai pas compris. Pouvez-vous repondre par oui ou par non </nomatch>
+         
+         <!-- Comportement du systeme apres confirmation/infirmation --> 
+         <!-- OK ==> On sort ou on passe a une autre sous-tache -->
+         <!-- NOK ==> On efface tout et on recommence --> 
+
+         <filled>
+                 <if cond="confirm_time=='True'">
+                     <assign name="message_confirm" expr="'TRACE Heure confirme'" />
+                 <else/>
+                     <assign name="message_confirm" expr="'TRACE Heure non confirme'" />
+                     <clear namelist="rdv_heure confirm_time" />
+                 </if>
+                 <!-- Comportement si le mode TRACE est active --> 
+
+                 <if cond="mode_trace=='True'">
+                   TRACE Reponse <value expr="message_confirm" />
+                 </if>
+         </filled>
+
+</field>
+
+<block>
+  Votre rendez-vous a bien ete enregistre!
+</block>
+
+</form>
+
+</vxml>

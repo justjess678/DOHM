@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar version="1.0" root="Lieu" xml:lang="fr">
+
+<meta name="description" content="Grammaire lieu"/>
+<meta name="author" content="Jessica Chambers"/>
+
+	 <rule id = "Lieu" scope = "public">
+		<one-of>
+			<item>bureau			<tag> out.location = "bureau" ; 			</tag></item>
+			<item>salle de cours	<tag> out.location = "salle de cours" ; 	</tag></item>
+			<item>salle de reunion	<tag> out.location = "salle de reunion" ;	</tag></item>
+			<item>salle info		<tag> out.location = "salle info" ; 		</tag></item>
+		</one-of>
+	</rule>
+
+</grammar>

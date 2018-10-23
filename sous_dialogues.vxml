@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ATTENTION : UTF-8 = PAS DE CARACTERES ACCENTUES -->
+<!-- si PB message : Invalid UTF-8 character --> 
+
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+
+<meta name="description" content="Sous dialogues de gestion d'agenda"/>
+<meta name="author" content="Jessica Chambers"/>
+
+<!--sous dialogues-->
+
+<form id="conf">
+  <var name="val"/>
+  <block>
+    <prompt> Pouvez-vous me le confirmer ? </prompt>
+  </block>
+
+  <field name="confirm">
+
+    <!-- Appel a une grammaire externe -->
+    <grammar src="grammaire_act_lang_confirmation_v2.grxml" type="application/srgs+xml" />
+
+    <!-- Gestion des erreurs -->
+    <help> Repondez par oui ou non </help>
+    <noinput> Je n'ai pas entendu. Pouvez-vous repeter ? </noinput>
+    <nomatch> Je ne vous ai pas compris. Pouvez-vous repondre par oui ou par non </nomatch>
+
+    <!-- Comportement du systeme apres confirmation/infirmation --> 
+    <!-- OK ==> On sort ou on passe a une autre sous-tache -->
+    <!-- NOK ==> On efface tout et on recommence --> 
+    <filled>
+         <return namelist="confirm"/>
+    </filled>
+  </field>
+</form>
+</vxml>

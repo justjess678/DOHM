@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar version="1.0" root="Personne" xml:lang="fr">
+
+<meta name="description" content="Grammaire personne"/>
+<meta name="author" content="Jessica Chambers"/>
+
+	 <rule id = "Personne" scope = "public">
+		<one-of>
+			<item>Monsieur Dupont		<tag> out.personne = "M Dupont" ; 		</tag></item>
+			<item>Monsieur Raynal		<tag> out.personne = "M Raynal" ; 		</tag></item>
+			<item>Monsieur Joly			<tag> out.personne = "M Joly" ;			</tag></item>
+			<item>Madame Ferrane		<tag> out.personne = "Mme Ferrane" ;	</tag></item>
+		</one-of>
+	</rule>
+
+</grammar>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar version="1.0" root="Horaire" xml:lang="fr">
+
+<meta name="description" content="Grammaire horloge"/>
+<meta name="author" content="Jessica Chambers"/>
+
+	 <rule id = "Horaire" scope = "public">
+		<tag>
+			out.heure = 0 ;
+			out.minute = 0 ;
+			out.totalmins = 0 ;
+			out.text = "" ;
+		</tag>
+		<one-of>
+			  <item> <ruleref uri="#Sans_minute"/> </item>
+			  <item> <ruleref uri="#Avec_minute"/> </item>
+		</one-of>
+		  	<tag>
+		  		out.heure = rules.latest().heure ;
+				out.minute = rules.latest().minute ;
+				out.totalmins =  rules.latest().totalmins ;
+				out.text = rules.latest().text ;
+				if (out.heure == 24){
+					out.heure = 0 ;
+				}
+			</tag>
+     </rule>
+	 
+	 <rule id= "Sans_minute">
+	 	<tag>
+			out.heure = 0 ;
+			out.minute = 0 ;
+			out.totalmins = 0 ;
+		</tag>
+		<one-of>
+			<item> <ruleref uri="#HEURE"/> 	<tag>out.heure = rules.latest().heure ;</tag></item>
+			<item> <ruleref uri="#HEUREX"/> <tag>out.heure = rules.latest().heure ;</tag></item>
+		</one-of>
+		<item repeat="0-1">
+			<ruleref uri="#H" /><tag>out.majoration = 0;
+									out.totalmins = out.heure * 60 ;
+									out.minute = 0 ;</tag>
+		</item>
+		<tag> out.text = meta.current().text + "" </tag>
+	 </rule>
+	 
+	 <rule id= "Avec_minute">
+	 	<tag>
+			out.heure = 0 ;
+			out.minute = 0 ;
+			out.totalmins = 0 ;
+			out.text = meta.current().text
+		</tag>
+		<one-of>
+			<item> <ruleref uri="#HEURE"/> 	<tag>out.heure = rules.latest().heure ;</tag></item>
+			<item> <ruleref uri="#HEUREX"/> <tag>out.heure = rules.latest().heure ;</tag></item>
+		</one-of>
+
+		<item repeat="0-1">
+			<ruleref uri="#H" />
+		</item>
+
+		<tag>
+			out.majoration = 1 ;
+		</tag>
+		<item repeat="0-1">
+			<ruleref uri="#MAJ"/> <tag>out.majoration = rules.latest().majoration ;</tag>
+		</item>
+
+		<item repeat="0-1">
+			<ruleref uri="#DET"/>
+		</item>
+
+		<one-of>
+			<item> <ruleref uri="#MINUTE"/> 	<tag>out.minute = rules.latest().minute ;	</tag></item>
+			<item> <ruleref uri="#FRACTION"/> 	<tag>out.minute = rules.latest().minute ;	</tag></item>
+		</one-of>
+
+		<tag>
+			out.totalmins = 60 * out.heure + (out.majoration * out.minute) ;
+			if (out.majoration == -1) {
+				out.minute = out.totalmins % 60 ;
+   				out.heure = (out.totalmins - out.minute) / 60 ;
+			}			
+		</tag>
+		<tag> out.text = meta.current().text + "" ; </tag>
+	 </rule>
+	 
+	<rule id="HEURE">
+		<one-of>
+			<item>une			<tag> out.heure = 1 ;	</tag></item>
+			<item>deux			<tag> out.heure = 2 ;	</tag></item>
+			<item>trois			<tag> out.heure = 3 ;	</tag></item>
+			<item>quatre		<tag> out.heure = 4 ;	</tag></item>
+			<item>cinq			<tag> out.heure = 5 ;	</tag></item>
+			<item>six			<tag> out.heure = 6 ;	</tag></item>
+			<item>sept			<tag> out.heure = 7 ;	</tag></item>
+			<item>huit			<tag> out.heure = 8 ;	</tag></item>
+			<item>neuf			<tag> out.heure = 9 ;	</tag></item>
+			<item>dix			<tag> out.heure = 10 ;	</tag></item>
+			<item>onze			<tag> out.heure = 11 ; 	</tag></item>
+			<item>douze			<tag> out.heure = 12 ; 	</tag></item>
+			<item>treize		<tag> out.heure = 13 ; 	</tag></item>
+			<item>quatorze		<tag> out.heure = 14 ; 	</tag></item>
+			<item>quinze		<tag> out.heure = 15 ; 	</tag></item>
+			<item>seize			<tag> out.heure = 16 ; 	</tag></item>
+			<item>dix-sept		<tag> out.heure = 17 ; 	</tag></item>
+			<item>dix-huit		<tag> out.heure = 18 ; 	</tag></item>
+			<item>dix-neuf		<tag> out.heure = 19 ; 	</tag></item>
+			<item>vingt			<tag> out.heure = 20 ; 	</tag></item>
+			<item>vingt-et-un	<tag> out.heure = 21 ; 	</tag></item>
+			<item>vingt-deux	<tag> out.heure = 22 ; 	</tag></item>
+			<item>vingt-trois	<tag> out.heure = 23 ; 	</tag></item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ; </tag>
+	</rule>
+	
+	<rule id="MINUTE">
+		<one-of>
+			<item>pile				<tag> out.minute = 0 ; 	</tag></item>
+			<item>cinq				<tag> out.minute = 5 ; 	</tag></item>
+			<item>dix				<tag> out.minute = 10 ; </tag></item>
+			<item>quinze			<tag> out.minute = 15 ; </tag></item>
+			<item>vingt				<tag> out.minute = 20 ; </tag></item>
+			<item>vingt-cinq		<tag> out.minute = 25 ; </tag></item>
+			<item>trente			<tag> out.minute = 30 ; </tag></item>
+			<item>trente-cinq		<tag> out.minute = 35 ; </tag></item>
+			<item>quarante			<tag> out.minute = 40 ; </tag></item>
+			<item>quarante-cinq		<tag> out.minute = 45 ; </tag></item>
+			<item>cinquante			<tag> out.minute = 50 ; </tag></item>
+			<item>cinquante-cinq	<tag> out.minute = 55 ; </tag></item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+
+	<rule id="HEUREX">
+		<one-of>
+			<item>midi		<tag> out.heure = 12 ; 	</tag></item>
+			<item>minuit	<tag> out.heure = 24 ; 	</tag></item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+
+	<rule id="H">
+		<one-of>
+			<item>heures	</item>
+			<item>heure 	</item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+	
+	<rule id="MAJ">
+		<one-of>
+			<item>et		<tag> out.majoration = 1 ;	</tag></item>
+			<item>moins		<tag> out.majoration = -1 ;	</tag></item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+
+	<rule id="DET">
+		<one-of>
+			<item>le</item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+
+	<rule id="FRACTION">
+		<one-of>
+			<item>quart		<tag> out.minute = 15 ;  </tag></item>
+			<item>demi		<tag> out.minute = 30 ;  </tag></item>
+		</one-of>
+		<tag> out.text = meta.current().text + "" ;	</tag>
+	</rule>
+
+</grammar>
